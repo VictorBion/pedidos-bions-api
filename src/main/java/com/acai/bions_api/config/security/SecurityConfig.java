@@ -24,10 +24,10 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize-> authorize
-                   // .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                        // .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/acai").permitAll()
-                       .requestMatchers(HttpMethod.POST, "/acai/salvarUsuario").permitAll()
-                      .requestMatchers(HttpMethod.POST,"/acai").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/acai/salvarUsuario").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/acai/pedidos").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/acai/**").hasRole("ADMIN")
 
 

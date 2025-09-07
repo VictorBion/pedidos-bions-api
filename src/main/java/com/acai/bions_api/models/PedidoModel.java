@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "TB_PEDIDO")
-public class PedidoModel {
+public class PedidoModel {  
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

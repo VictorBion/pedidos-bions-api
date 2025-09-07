@@ -1,6 +1,9 @@
 package com.acai.bions_api.controller;
 
+import com.acai.bions_api.Service.EmailSenderService;
 import com.acai.bions_api.Service.PedidoService;
+import com.acai.bions_api.dtos.EmailDto;
+import com.acai.bions_api.dtos.PedidoComEmailDto;
 import com.acai.bions_api.dtos.PedidoDto;
 import com.acai.bions_api.dtos.UserDto;
 import com.acai.bions_api.models.PedidoModel;
@@ -8,6 +11,7 @@ import com.acai.bions_api.models.RoleModel;
 import com.acai.bions_api.models.UserModel;
 import lombok.Getter;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,6 +32,9 @@ public class PedidosController {
 
     final PasswordEncoder passwordEncoder;
 
+    @Autowired
+     EmailSenderService emailSenderService;
+
     public PedidosController(PedidoService pedidoService, PasswordEncoder passwordEncoder) {
         this.pedidoService = pedidoService;
         this.passwordEncoder = passwordEncoder;
@@ -45,11 +52,14 @@ public class PedidosController {
         return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.salvarUsuario(userModel));
     }
 
-    @PostMapping
-    public ResponseEntity<PedidoModel> postAcai(@RequestBody PedidoDto pedidoDto){
-        System.out.println("olaaaa");
+    @PostMapping("/pedidos")
+    public ResponseEntity<PedidoModel> postAcai(@RequestBody PedidoComEmailDto dto){
         var pedidoModel = new PedidoModel();
-        BeanUtils.copyProperties(pedidoDto, pedidoModel);
+        BeanUtils.copyProperties(dto.pedidoDto(), pedidoModel);
+
+        EmailDto emailDto = dto.emailDto();
+        emailSenderService.sendEmail(emailDto.to(), emailDto.subject(), emailDto.body());
+
        return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.save(pedidoModel));
     }
 

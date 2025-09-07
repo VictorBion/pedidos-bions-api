@@ -44,19 +44,11 @@ public class PedidoService {
     }
 
 
-//    public List<PedidoModel> findAll(){
-//        return pedidoModelRepository.findAll();
-//    }
-
-//    public UserModel salvarUsuario(UserModel user) {
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
-//       return userRepository.save(user);
-//    }
-
     public UserModel salvarUsuario(UserModel userModel) {
         userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
         return userRepository.save(userModel);
     }
+
 
     public List<RoleModel> resolverRoles(List<String> rolesRecebidas) {
         if (rolesRecebidas == null || rolesRecebidas.isEmpty()) {
