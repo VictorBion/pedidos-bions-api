@@ -1,4 +1,12 @@
 package com.acai.bions_api.dtos;
 
-public record EmailDto(String to, String subject, String body) {
+import jakarta.validation.constraints.NotBlank;
+
+public record EmailDto(
+        @NotBlank
+        String to,
+        @NotBlank
+        String subject,
+        @NotBlank
+        String body) {
 }

@@ -18,10 +18,10 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CustomAuthenticationEntryPoint entryPoint) throws Exception {
         return httpSecurity
                 .csrf(csrf-> csrf.disable())
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic(http -> http.authenticationEntryPoint(entryPoint))
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize-> authorize
                         // .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()

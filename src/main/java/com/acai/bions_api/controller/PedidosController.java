@@ -9,6 +9,7 @@ import com.acai.bions_api.dtos.UserDto;
 import com.acai.bions_api.models.PedidoModel;
 import com.acai.bions_api.models.RoleModel;
 import com.acai.bions_api.models.UserModel;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,14 +54,10 @@ public class PedidosController {
     }
 
     @PostMapping("/pedidos")
-    public ResponseEntity<PedidoModel> postAcai(@RequestBody PedidoComEmailDto dto){
-        var pedidoModel = new PedidoModel();
-        BeanUtils.copyProperties(dto.pedidoDto(), pedidoModel);
-
-        EmailDto emailDto = dto.emailDto();
-        emailSenderService.sendEmail(emailDto.to(), emailDto.subject(), emailDto.body());
-
-       return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.save(pedidoModel));
+    public ResponseEntity<PedidoModel> postAcai(@Valid @RequestBody PedidoComEmailDto dto){
+//        EmailDto emailDto = dto.emailDto();
+//        emailSenderService.sendEmail(emailDto.to(), emailDto.subject(), emailDto.body());
+       return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.salvarPedidos(dto));
     }
 
     @GetMapping
@@ -86,10 +83,8 @@ public class PedidosController {
         if (!pedidoModelOptional.isPresent()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pedido não encontrado!");
         }
-
         var pedidoModel = new PedidoModel();
-        BeanUtils.copyProperties(pedidoDto, pedidoModel);
         pedidoModel.setId(pedidoModelOptional.get().getId());
-        return ResponseEntity.status(HttpStatus.OK).body(pedidoService.save(pedidoModel));
+        return ResponseEntity.status(HttpStatus.OK).body(pedidoService.salvarPedidos(pedidoDto));
     }
 }

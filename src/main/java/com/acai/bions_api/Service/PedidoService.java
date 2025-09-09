@@ -3,10 +3,14 @@ package com.acai.bions_api.Service;
 import com.acai.bions_api.Repositories.PedidoRepository;
 import com.acai.bions_api.Repositories.RoleRepository;
 import com.acai.bions_api.Repositories.UserRepository;
+import com.acai.bions_api.dtos.EmailDto;
+import com.acai.bions_api.dtos.PedidoComEmailDto;
+import com.acai.bions_api.dtos.PedidoDto;
 import com.acai.bions_api.enums.RoleName;
 import com.acai.bions_api.models.PedidoModel;
 import com.acai.bions_api.models.RoleModel;
 import com.acai.bions_api.models.UserModel;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +32,9 @@ public class PedidoService {
     @Autowired
     RoleRepository roleRepository;
 
+    @Autowired
+    EmailSenderService emailSenderService;
+
     private PasswordEncoder passwordEncoder;
 
     public PedidoService(PedidoRepository pedidoModelRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
@@ -39,7 +46,18 @@ public class PedidoService {
 
 
     @Transactional
-    public PedidoModel save(PedidoModel pedidoModel){
+    public PedidoModel salvarPedidos(PedidoComEmailDto dto){
+        PedidoModel pedidoModel = new PedidoModel();
+        BeanUtils.copyProperties(dto.pedidoDto(), pedidoModel);
+        EmailDto emailDto = dto.emailDto();
+        emailSenderService.sendEmail(emailDto.to(), emailDto.subject(), emailDto.body());
+        return pedidoModelRepository.save(pedidoModel);
+    }
+
+    @Transactional
+    public PedidoModel salvarPedidos(PedidoDto pedidoDto){
+        PedidoModel pedidoModel = new PedidoModel();
+        BeanUtils.copyProperties(pedidoDto, pedidoModel);
         return pedidoModelRepository.save(pedidoModel);
     }
 
