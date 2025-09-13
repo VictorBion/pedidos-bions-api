@@ -6,6 +6,7 @@ import com.acai.bions_api.Repositories.UserRepository;
 import com.acai.bions_api.dtos.EmailDto;
 import com.acai.bions_api.dtos.PedidoComEmailDto;
 import com.acai.bions_api.dtos.PedidoDto;
+import com.acai.bions_api.dtos.UserDto;
 import com.acai.bions_api.enums.RoleName;
 import com.acai.bions_api.models.PedidoModel;
 import com.acai.bions_api.models.RoleModel;
@@ -14,9 +15,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,8 +47,6 @@ public class PedidoService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
-
     @Transactional
     public PedidoModel salvarPedidos(PedidoComEmailDto dto){
         PedidoModel pedidoModel = new PedidoModel();
@@ -55,15 +57,23 @@ public class PedidoService {
     }
 
     @Transactional
-    public PedidoModel salvarPedidos(PedidoDto pedidoDto){
-        PedidoModel pedidoModel = new PedidoModel();
-        BeanUtils.copyProperties(pedidoDto, pedidoModel);
-        return pedidoModelRepository.save(pedidoModel);
+    public PedidoModel atualizarPedidos(UUID id, PedidoDto pedidoDto) {
+        PedidoModel pedidoExistente = pedidoModelRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado!"));
+
+        // Copia os dados do DTO para o model, ignorando o campo "id"
+        BeanUtils.copyProperties(pedidoDto, pedidoExistente, "id");
+
+        return pedidoModelRepository.save(pedidoExistente);
     }
 
+    public UserModel salvarUsuario(UserDto userDto) {
+        UserModel userModel = new UserModel();
+        userModel.setPassword(passwordEncoder.encode(userDto.password()));
+        BeanUtils.copyProperties(userDto, userModel);
 
-    public UserModel salvarUsuario(UserModel userModel) {
-        userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
+        List<RoleModel> rolesConvertidas = resolverRoles(userDto.roles());
+        userModel.setRoles(rolesConvertidas);
         return userRepository.save(userModel);
     }
 
@@ -71,9 +81,8 @@ public class PedidoService {
     public List<RoleModel> resolverRoles(List<String> rolesRecebidas) {
         if (rolesRecebidas == null || rolesRecebidas.isEmpty()) {
             return List.of(roleRepository.findByRolename(RoleName.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Default role not found")));
+                    .orElseThrow(() -> new RuntimeException("Role não encontrada")));
         }
-
         return rolesRecebidas.stream()
                 .map(roleStr -> roleRepository.findByRolename(RoleName.valueOf(roleStr))
                         .orElseThrow(() -> new RuntimeException("Role not found: " + roleStr)))
@@ -90,6 +99,19 @@ public class PedidoService {
     }
 
     public void deleteById(UUID id) {
+        Optional<PedidoModel> pedidoModelOptional = findById(id);
+        if(pedidoModelOptional.isEmpty()){
+            throw new RuntimeException("Pedido não encontrado!");
+        }
        pedidoModelRepository.deleteById(id);
     }
 }
+
+
+//classe anonima
+//.orElseThrow(new Supplier<RuntimeException>() {
+//    @Override
+//    public RuntimeException get() {
+//        return new RuntimeException("Default role not found");
+//    }
+//});

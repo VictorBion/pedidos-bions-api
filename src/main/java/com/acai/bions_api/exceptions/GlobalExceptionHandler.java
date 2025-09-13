@@ -23,7 +23,4 @@ public class GlobalExceptionHandler {
         CampoNotFound error = new CampoNotFound(HttpStatus.BAD_REQUEST.value(), mensagem);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
-
-
-
 }
