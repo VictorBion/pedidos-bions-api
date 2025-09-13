@@ -2,16 +2,12 @@ package com.acai.bions_api.controller;
 
 import com.acai.bions_api.Service.EmailSenderService;
 import com.acai.bions_api.Service.PedidoService;
-import com.acai.bions_api.dtos.EmailDto;
 import com.acai.bions_api.dtos.PedidoComEmailDto;
 import com.acai.bions_api.dtos.PedidoDto;
 import com.acai.bions_api.dtos.UserDto;
 import com.acai.bions_api.models.PedidoModel;
-import com.acai.bions_api.models.RoleModel;
 import com.acai.bions_api.models.UserModel;
 import jakarta.validation.Valid;
-import lombok.Getter;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -31,14 +25,12 @@ import java.util.UUID;
 public class PedidosController {
 
    final PedidoService pedidoService;
+   final EmailSenderService emailSenderService;
 
-    @Autowired
-     EmailSenderService emailSenderService;
-
-    public PedidosController(PedidoService pedidoService, PasswordEncoder passwordEncoder) {
+    public PedidosController(PedidoService pedidoService,  EmailSenderService emailSenderService) {
+        this.emailSenderService = emailSenderService;
         this.pedidoService = pedidoService;
     }
-
 
     @PostMapping("/salvarUsuario")
     public ResponseEntity<UserModel> salvarUsuario(@RequestBody UserDto userDto){
@@ -66,18 +58,11 @@ public class PedidosController {
     @DeleteMapping("{id}")
     public ResponseEntity<Object> deleteAcai (@PathVariable(value = "id") UUID id){
         pedidoService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).body("pedido criado com sucesso!");
+        return ResponseEntity.status(HttpStatus.OK).body("pedido deletado com sucesso!");
     }
 
     @PutMapping("{id}")
     public ResponseEntity<Object> atulizarPedido(@PathVariable(value = "id") UUID id, @RequestBody PedidoDto pedidoDto)   {
-//        Optional<PedidoModel> pedidoModelOptional = pedidoService.findById(id);
-//
-//        if (!pedidoModelOptional.isPresent()){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pedido não encontrado!");
-//        }
-//        var pedidoModel = new PedidoModel();
-//        pedidoModel.setId(pedidoModelOptional.get().getId());
         return ResponseEntity.status(HttpStatus.OK).body(pedidoService.atualizarPedidos(id, pedidoDto));
     }
 }

@@ -29,19 +29,15 @@ import java.util.UUID;
 @Service
 public class PedidoService {
 
-    PedidoRepository pedidoModelRepository;
-
-    UserRepository userRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
-    EmailSenderService emailSenderService;
-
+    final PedidoRepository pedidoModelRepository;
+    final UserRepository userRepository;
+    final RoleRepository roleRepository;
+    final EmailSenderService emailSenderService;
     private PasswordEncoder passwordEncoder;
 
-    public PedidoService(PedidoRepository pedidoModelRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public PedidoService(PedidoRepository pedidoModelRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, EmailSenderService emailSenderService) {
+        this.emailSenderService = emailSenderService;
+        this.roleRepository = roleRepository;
         this.pedidoModelRepository = pedidoModelRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -76,7 +72,13 @@ public class PedidoService {
         userModel.setRoles(rolesConvertidas);
         return userRepository.save(userModel);
     }
-
+    public void deleteById(UUID id) {
+        Optional<PedidoModel> pedidoModelOptional = findById(id);
+        if(pedidoModelOptional.isEmpty()){
+            throw new RuntimeException("Pedido não encontrado!");
+        }
+        pedidoModelRepository.deleteById(id);
+    }
 
     public List<RoleModel> resolverRoles(List<String> rolesRecebidas) {
         if (rolesRecebidas == null || rolesRecebidas.isEmpty()) {
@@ -98,13 +100,6 @@ public class PedidoService {
         return pedidoModelRepository.findById(id);
     }
 
-    public void deleteById(UUID id) {
-        Optional<PedidoModel> pedidoModelOptional = findById(id);
-        if(pedidoModelOptional.isEmpty()){
-            throw new RuntimeException("Pedido não encontrado!");
-        }
-       pedidoModelRepository.deleteById(id);
-    }
 }
 
 
